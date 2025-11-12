@@ -12,8 +12,8 @@ mod size;
 pub trait FileFilter {
     fn matches(&self, path: &Path) -> Result<bool, FilterError>;
 }
-
+#[derive(Debug)]
 pub enum FilterError {
     IoError(Error),
-    Other(String)
+    Other(String),
 }
