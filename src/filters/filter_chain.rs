@@ -12,9 +12,8 @@ impl MultiFilter {
         }
     }
 
-    pub fn add(mut self, filter: Box<dyn FileFilter>) -> Self {
-        (&mut self.filters).push(filter);
-        self
+    pub fn add<F: FileFilter + 'static>(&mut self, filter: F) {
+        self.filters.push(Box::new(filter));
     }
 }
 
