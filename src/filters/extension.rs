@@ -6,7 +6,7 @@ pub struct ExtensionFilter {
 }
 
 impl ExtensionFilter {
-    fn new<S: AsRef<str>>(extensions: Vec<S>) -> Self {
+    pub fn new<S: AsRef<str>>(extensions: Vec<S>) -> Self {
         Self {
             allowed: extensions
                 .into_iter()
