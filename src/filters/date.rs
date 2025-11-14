@@ -3,12 +3,14 @@ use std::fs::metadata;
 use std::path::Path;
 use std::time::{Duration, SystemTime};
 
+#[derive(Clone)]
 pub enum DateType {
     Modified,
     Accessed,
     Created,
 }
 
+#[derive(Clone)]
 pub struct DateFilter {
     date_type: DateType,
     within: Duration,
