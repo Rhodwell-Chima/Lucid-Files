@@ -2,6 +2,7 @@ use super::{FileFilter, FilterError};
 use std::fs::metadata;
 use std::path::Path;
 
+#[derive(Clone)]
 pub struct SizeFilter {
     min_bytes: u64,
     max_bytes: u64,
