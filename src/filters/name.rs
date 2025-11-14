@@ -2,6 +2,7 @@ use crate::filters::{FileFilter, FilterError};
 use std::ffi::OsStr;
 use std::path::Path;
 
+#[derive(Clone)]
 pub enum NameMatch {
     Contains(String),
     StartsWith(String),
@@ -9,6 +10,7 @@ pub enum NameMatch {
     Equal(String),
 }
 
+#[derive(Clone)]
 pub struct NameFilter {
     allowed_pattern: NameMatch,
 }
