@@ -1,8 +1,12 @@
+pub mod recursive;
 pub mod simple;
 
+pub use recursive::*;
+pub use simple::*;
+
+use crate::filters::FilterError;
 use std::io::Error;
 use std::path::{Path, PathBuf};
-use crate::filters::FilterError;
 
 pub trait Scanner {
     fn scan(&self, root: &Path) -> Result<Vec<PathBuf>, FilterError>;
