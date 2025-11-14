@@ -2,11 +2,14 @@ use super::{FileFilter, FilterError};
 use std::fs::symlink_metadata;
 use std::path::Path;
 
+#[derive(Clone)]
 pub enum FileKind {
     Symlink,
     Directory,
     File,
 }
+
+#[derive(Clone)]
 pub struct FileTypeFilter {
     kind: FileKind,
 }
