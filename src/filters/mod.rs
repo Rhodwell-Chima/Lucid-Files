@@ -17,6 +17,7 @@ pub trait FileFilter {
 #[derive(Debug)]
 pub enum FilterError {
     IoError(Error),
+    WalkdirError(walkdir::Error),
     TimeError(SystemTimeError),
     Other(String),
 }
