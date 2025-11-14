@@ -1,6 +1,8 @@
 use super::{FileFilter, FilterError};
 use std::ffi::OsStr;
 use std::path::Path;
+
+#[derive(Clone)]
 pub struct ExtensionFilter {
     allowed: Vec<String>,
 }
