@@ -16,7 +16,7 @@ pub struct NameFilter {
 }
 
 impl NameFilter {
-    fn new(pattern: NameMatch) -> Self {
+    pub fn new(pattern: NameMatch) -> Self {
         Self {
             allowed_pattern: pattern,
         }
