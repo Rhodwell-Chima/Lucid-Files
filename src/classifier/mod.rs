@@ -1,4 +1,7 @@
 pub mod extension;
+mod date;
+mod size;
+mod name;
 
 pub use extension::*;
 
