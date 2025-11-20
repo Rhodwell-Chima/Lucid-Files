@@ -1,4 +1,4 @@
-use crate::classifier::FileClassifier;
+use crate::classifier::{ClassifierError, FileClassifier};
 use ErrorKind::Other;
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
@@ -17,19 +17,18 @@ impl ExtensionClassifier {
 }
 
 impl FileClassifier for ExtensionClassifier {
-    fn classify(&self, path: &Path) -> Result<String, Error> {
+    fn classify(&self, path: &Path) -> Result<Option<String>, ClassifierError> {
         let extension = path
             .extension()
-            .ok_or_else(|| Other)?
+            .ok_or(ClassifierError::MissingExtension)?
             .to_str()
-            .unwrap_or_else(|| "Unable to convert &OsStr to &str")
+            .ok_or(ClassifierError::InvalidExtensionEncoding)?
             .to_lowercase();
         for (category, extensions) in &self.category_extensions {
             if extensions.contains(&extension) {
-                return Ok(category.to_string());
+                return Ok(Some(category.to_string()));
             }
         }
-
-        Ok("Unknown".to_string())
+        Ok(None)
     }
 }
