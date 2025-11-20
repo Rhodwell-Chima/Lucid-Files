@@ -1,7 +1,5 @@
 use crate::classifier::{ClassifierError, FileClassifier};
-use ErrorKind::Other;
 use std::collections::HashMap;
-use std::io::{Error, ErrorKind};
 use std::path::Path;
 
 pub struct ExtensionClassifier {
