@@ -1,4 +1,4 @@
-use crate::action::FileAction;
+use crate::action::{FileAction, FileActionError};
 use std::fs;
 use std::io::Error;
 use std::path::PathBuf;
@@ -18,8 +18,8 @@ impl CopyAction {
 }
 
 impl FileAction for CopyAction {
-    fn execute(&self) -> Result<(), Error> {
-        fs::copy(&self.source, &self.destination)?;
+    fn execute(&self) -> Result<(), FileActionError> {
+        fs::copy(&self.source, &self.destination).map_err(|e| FileActionError::Io(e))?;
         Ok(())
     }
 }
