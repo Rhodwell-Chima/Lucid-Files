@@ -1,4 +1,4 @@
-use crate::action::FileAction;
+use crate::action::{FileAction, FileActionError};
 use std::fs;
 use std::io::Error;
 use std::path::PathBuf;
@@ -14,8 +14,8 @@ impl DeleteAction {
 }
 
 impl FileAction for DeleteAction {
-    fn execute(&self) -> Result<(), Error> {
-        fs::remove_file(&self.path)?;
+    fn execute(&self) -> Result<(), FileActionError> {
+        fs::remove_file(&self.path).map_err(|e| FileActionError::Io(e))?;
         Ok(())
     }
 }
