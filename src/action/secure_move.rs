@@ -8,10 +8,10 @@ pub struct SecureMoveAction {
     destination: PathBuf,
 }
 impl SecureMoveAction {
-    pub fn new(source: PathBuf, destination: PathBuf) -> Self {
+    pub fn new(source: impl Into<PathBuf>, destination: impl Into<PathBuf>) -> Self {
         Self {
-            source,
-            destination,
+            source: source.into(),
+            destination: destination.into(),
         }
     }
 }
