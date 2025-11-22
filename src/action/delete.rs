@@ -8,8 +8,8 @@ pub struct DeleteAction {
 }
 
 impl DeleteAction {
-    pub fn new(path: PathBuf) -> Self {
-        Self { path }
+    pub fn new(path: impl Into<PathBuf>) -> Self {
+        Self { path: path.into() }
     }
 }
 
