@@ -1,6 +1,5 @@
 use crate::action::{FileAction, FileActionError};
 use std::fs;
-use std::io::Error;
 use std::path::{Path, PathBuf};
 
 pub struct DeleteAction {
