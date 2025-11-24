@@ -28,9 +28,9 @@ impl RecursiveScanner {
 }
 
 impl Scanner for RecursiveScanner {
-    fn scan(&self, root: &Path) -> Result<Vec<PathBuf>, FilterError> {
+    fn scan(&self, root: impl AsRef<Path>) -> Result<Vec<PathBuf>, FilterError> {
         let mut paths = vec![];
-        for entry in WalkDir::new(root)
+        for entry in WalkDir::new(root.as_ref())
             .follow_root_links(false)
             .min_depth(self.min_depth)
             .max_depth(self.max_depth)
