@@ -9,5 +9,5 @@ use std::io::Error;
 use std::path::{Path, PathBuf};
 
 pub trait Scanner {
-    fn scan(&self, root: &Path) -> Result<Vec<PathBuf>, FilterError>;
+    fn scan(&self, root: impl AsRef<Path>) -> Result<Vec<PathBuf>, FilterError>;
 }
