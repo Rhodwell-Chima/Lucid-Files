@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::io::Error;
 use std::path::Path;
 use std::time::SystemTimeError;
@@ -21,3 +22,24 @@ pub enum FilterError {
     TimeError(SystemTimeError),
     Other(String),
 }
+
+impl Display for FilterError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FilterError::IoError(e) => {
+                write!(f, "io error: {}", &e)
+            }
+            FilterError::WalkdirError(e) => {
+                write!(f, "walkdir error : {}", &e)
+            }
+            FilterError::TimeError(e) => {
+                write!(f, "time error : {}", &e)
+            }
+            FilterError::Other(e) => {
+                write!(f, "other errors : {}", &e)
+            }
+        }
+    }
+}
+
+impl std::error::Error for FilterError {}
