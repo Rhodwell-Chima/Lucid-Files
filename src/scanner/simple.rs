@@ -1,15 +1,14 @@
-use crate::filters::filter_chain::MultiFilter;
 use crate::filters::{FileFilter, FilterError};
 use crate::scanner::Scanner;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 pub struct SimpleScanner {
-    filter: MultiFilter,
+    filter: Box<dyn FileFilter>,
 }
 
 impl SimpleScanner {
-    pub fn new(filter: MultiFilter) -> Self {
+    pub fn new(filter: Box<dyn FileFilter>) -> Self {
         Self { filter }
     }
 }
