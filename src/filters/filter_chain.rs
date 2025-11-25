@@ -1,11 +1,11 @@
 use super::{FileFilter, FilterError};
 use std::path::Path;
 
-pub struct MultiFilter {
+pub struct AndMultiFilter {
     filters: Vec<Box<dyn FileFilter>>,
 }
 
-impl MultiFilter {
+impl AndMultiFilter {
     pub fn new() -> Self {
         Self {
             filters: Vec::new(),
@@ -17,7 +17,7 @@ impl MultiFilter {
     }
 }
 
-impl FileFilter for MultiFilter {
+impl FileFilter for AndMultiFilter {
     fn matches(&self, path: &Path) -> Result<bool, FilterError> {
         for filter in &self.filters {
             match filter.matches(path)? {
