@@ -29,3 +29,25 @@ impl FileFilter for AndMultiFilter {
         Ok(true)
     }
 }
+
+pub struct OrMultiFilter {
+    filters: Vec<Box<dyn FileFilter>>,
+}
+
+impl OrMultiFilter {
+    pub fn new(filters: Vec<Box<dyn FileFilter>>) -> Self {
+        Self { filters }
+    }
+}
+
+impl FileFilter for OrMultiFilter {
+    fn matches(&self, path: &Path) -> Result<bool, FilterError> {
+        for filter in &self.filters {
+            match filter.matches(path)? {
+                true => return Ok(true),
+                false => continue,
+            }
+        }
+        Ok(false)
+    }
+}
