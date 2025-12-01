@@ -6,10 +6,8 @@ pub struct AndMultiFilter {
 }
 
 impl AndMultiFilter {
-    pub fn new() -> Self {
-        Self {
-            filters: Vec::new(),
-        }
+    pub fn new(filters: Vec<Box<dyn FileFilter>>) -> Self {
+        Self { filters }
     }
 
     pub fn add<F: FileFilter + 'static>(&mut self, filter: F) {
