@@ -27,7 +27,7 @@ impl FileClassifier for ExtensionClassifier {
             .ok_or(ClassifierError::MissingExtension)?
             .to_str()
             .ok_or(ClassifierError::InvalidExtensionEncoding)?
-            .to_lowercase();
+            .to_ascii_lowercase();
         for (category, extensions) in &self.category_extensions {
             if extensions.contains(&extension) {
                 return Ok(Some(category.to_string()));
