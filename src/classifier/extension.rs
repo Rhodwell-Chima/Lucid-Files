@@ -16,6 +16,12 @@ impl ExtensionClassifier {
 
 impl FileClassifier for ExtensionClassifier {
     fn classify(&self, path: &Path) -> Result<Option<String>, ClassifierError> {
+        if !path.try_exists().map_err(ClassifierError::Io)? {
+            return Err(ClassifierError::Io(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Path does not exist",
+            )));
+        }
         let extension = path
             .extension()
             .ok_or(ClassifierError::MissingExtension)?
