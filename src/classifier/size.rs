@@ -10,6 +10,13 @@ pub struct SizeClassifier {
 
 impl SizeClassifier {
     pub fn new(category: impl Into<String>, min_bytes: u64, max_bytes: u64) -> Self {
+        if min_bytes > max_bytes {
+            return Self {
+                category: category.into(),
+                min_bytes: max_bytes,
+                max_bytes: min_bytes,
+            };
+        }
         Self {
             category: category.into(),
             min_bytes,
