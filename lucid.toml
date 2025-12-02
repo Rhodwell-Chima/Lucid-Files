@@ -1,0 +1,45 @@
+# ===========================
+# File Organiser Configuration
+# ===========================
+
+[general]
+# Simulate actions without actually moving files
+dry_run = false
+
+# Confirm before performing any action
+confirm_before_action = true
+
+# Overwrite files if they already exist at the destination
+overwrite_existing = false
+
+# Remove empty directories after moving files
+remove_empty_dirs = true
+
+# Scan subdirectories recursively
+recursive = true
+
+# Timezone for date/time operations
+timezone = "UTC"
+
+# ===========================
+# Categories by file extension
+# ===========================
+
+[categories.by_extension]
+Audio = ["mp3", "ogg", "wav", "flac", "aac"]
+Video = ["mp4", "mkv", "avi", "mov"]
+Documents = ["pdf", "docx", "txt", "md"]
+Images = ["jpg", "jpeg", "png", "gif", "bmp", "svg"]
+Archives = ["zip", "rar", "7z", "tar", "gz"]
+
+# ===========================
+# File size category
+# ===========================
+
+[categories.by_size.small]
+min = 0
+max = 1024
+
+[categories.by_size.medium]
+min = 1024
+max = 8274
