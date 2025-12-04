@@ -3,26 +3,15 @@
 # ===========================
 
 [general]
-# Simulate actions without actually moving files
 dry_run = false
-
-# Confirm before performing any action
 confirm_before_action = true
-
-# Overwrite files if they already exist at the destination
 overwrite_existing = false
-
-# Remove empty directories after moving files
 remove_empty_dirs = true
-
-# Scan subdirectories recursively
 recursive = true
-
-# Timezone for date/time operations
 timezone = "UTC"
 
 # ===========================
-# Categories by file extension
+# Categories
 # ===========================
 
 [categories.by_extension]
@@ -32,10 +21,6 @@ Documents = ["pdf", "docx", "txt", "md"]
 Images = ["jpg", "jpeg", "png", "gif", "bmp", "svg"]
 Archives = ["zip", "rar", "7z", "tar", "gz"]
 
-# ===========================
-# File size category
-# ===========================
-
 [categories.by_size.small]
 min = 0
 max = 1024
@@ -43,3 +28,27 @@ max = 1024
 [categories.by_size.medium]
 min = 1024
 max = 8274
+
+
+# ===========================
+# Filters
+# ===========================
+
+[filters]
+extensions = [".jpg", ".png", ".gif"]
+names = [
+    { Contains = "backup" },
+    { StartsWith = "report" },
+    { Equal = "README.md" },
+]
+sizes = { min = 1024, max = 4096000 }
+# dates = { from = "2023-01-01T00:00:00Z", to = "2023-12-31T23:59:59Z" }
+
+
+
+# ===========================
+# Core Settings
+# ===========================
+[core]
+action = "Move"  # Options: Move, Copy, Delete
+scanner = "Recusive"  # Options: Recursive, Simple
