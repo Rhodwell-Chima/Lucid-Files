@@ -1,5 +1,7 @@
 use crate::action::move_file::MoveActionRef;
 use crate::action::{CopyActionRef, DeleteActionRef, FileAction};
+use crate::config::config::ActionType;
+use crate::config::load_config_from_path;
 use crate::filters::FileFilter;
 use crate::filters::extension::ExtensionFilter;
 use crate::filters::filter_chain::{AndMultiFilter, OrMultiFilter};
@@ -17,6 +19,8 @@ mod scanner;
 mod util;
 
 fn main() {
+    let config = load_config_from_path("lucid.toml".as_ref()).unwrap();
+    println!("Configuration Loaded: {:?}", config);
     let source = prompt_path("Enter a valid source path: ", true);
     let destination = prompt_path("Enter a valid destination path: ", true);
 
@@ -39,7 +43,7 @@ fn main() {
 
     for i in results {
         println!("{}", &i.display());
-        choose_action(action_choice, &i, &destination);
+        perform_configured_action(&config.core.action, &i, &destination);
     }
 }
 
@@ -141,6 +145,47 @@ fn choose_action(choice: u8, file: &PathBuf, destination: &Path) {
             }
         }
         _ => {
+            println!("Invalid choice. No action will be performed.");
+        }
+    }
+}
+
+fn perform_configured_action(choice: &ActionType, file: &PathBuf, destination: &Path) {
+    match choice {
+        ActionType::Copy => {
+            if let Err(e) =
+                CopyActionRef::new(&file, &destination.join(&file.file_name().unwrap())).execute()
+            {
+                println!("Copy failed: {}", e);
+            } else {
+                println!(
+                    "Successfully Copied {} to {}",
+                    &file.display(),
+                    &destination.display()
+                )
+            }
+        }
+        ActionType::Move => {
+            if let Err(e) =
+                MoveActionRef::new(&file, &destination.join(&file.file_name().unwrap())).execute()
+            {
+                println!("Move failed: {}", e);
+            } else {
+                println!(
+                    "Successfully moved {} to {}",
+                    &file.display(),
+                    &destination.display()
+                )
+            }
+        }
+        ActionType::Delete => {
+            if let Err(e) = DeleteActionRef::new(&file).execute() {
+                println!("Delete failed: {}", e);
+            } else {
+                println!("Successfully Deleted {}", &file.display())
+            }
+        }
+        ActionType::Unknown => {
             println!("Invalid choice. No action will be performed.");
         }
     }
