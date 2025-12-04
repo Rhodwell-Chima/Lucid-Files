@@ -1,8 +1,9 @@
 use crate::filters::{FileFilter, FilterError};
+use serde::Deserialize;
 use std::ffi::OsStr;
 use std::path::Path;
 
-#[derive(Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub enum NameMatch {
     Contains(String),
     StartsWith(String),
