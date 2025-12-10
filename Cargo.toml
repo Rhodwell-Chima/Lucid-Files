@@ -10,3 +10,4 @@ walkdir = "2.5.0"
 ratatui = { version = "0.28.0", features = ["all-widgets"] }
 tachyonfx = "0.20.1"
 clap = "4.5.53"
+bitflags = "2.10.0"
