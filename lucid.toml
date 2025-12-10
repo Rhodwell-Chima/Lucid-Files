@@ -3,18 +3,18 @@
 # ===========================
 
 [general]
-dry_run = false
-confirm_before_action = true
-overwrite_existing = false
-remove_empty_dirs = true
-recursive = true
-timezone = "UTC"
+dry_run = false                 # true / false
+confirm_before_action = true    # true / false
+overwrite_existing = false      # true / false
+remove_empty_dirs = true        # true / false
+recursive = true                # true / false
+timezone = "UTC"                # UTC,
 
 # ===========================
 # Categories
 # ===========================
 
-[categories.by_extension]
+[categories.by_extension] # Key (String) - Value (List of Sting) pair
 Audio = ["mp3", "ogg", "wav", "flac", "aac"]
 Video = ["mp4", "mkv", "avi", "mov"]
 Documents = ["pdf", "docx", "txt", "md"]
@@ -39,6 +39,7 @@ extensions = [".jpg", ".png", ".gif"]
 names = [
     { Contains = "backup" },
     { StartsWith = "report" },
+    { EndsWith = "hello" },
     { Equal = "README.md" },
 ]
 sizes = { min = 1024, max = 4096000 }
