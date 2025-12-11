@@ -49,3 +49,19 @@ impl FileFilter for OrMultiFilter {
         Ok(false)
     }
 }
+
+pub struct NotGateFilter {
+    filters: Box<dyn FileFilter>,
+}
+
+impl NotGateFilter {
+    pub fn new(filters: Box<dyn FileFilter>) -> Self {
+        Self { filters }
+    }
+}
+
+impl FileFilter for NotGateFilter {
+    fn matches(&self, path: &Path) -> Result<bool, FilterError> {
+        Ok(!self.filters.matches(path)?)
+    }
+}
