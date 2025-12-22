@@ -1,12 +1,13 @@
 use crate::action::move_file::MoveActionRef;
 use crate::action::{CopyActionRef, DeleteActionRef, FileAction};
-use crate::config::config::ActionType;
+use crate::config::config::{ActionType, Config};
 use crate::config::load_config_from_path;
 use crate::filters::FileFilter;
 use crate::filters::extension::ExtensionFilter;
 use crate::filters::filter_chain::{AndMultiFilter, OrMultiFilter};
 use crate::filters::size::SizeFilter;
 use crate::scanner::{RecursiveScanner, Scanner};
+use log::{error, info};
 use std::fs;
 use std::io::{Write, stdin};
 use std::path::{Path, PathBuf};
@@ -19,7 +20,19 @@ mod scanner;
 mod util;
 
 fn main() {
-    let config = load_config_from_path("lucid.toml".as_ref()).unwrap();
+    env_logger::init();
+    let config_result = load_config_from_path("lucid.toml".as_ref());
+    let config = match config_result {
+        Ok(config) => {
+            info!("Successfully loaded configuration.");
+            config
+        }
+        Err(error) => {
+            error!("Failed to load configuration: {}", error);
+            info!("Using default configuration.");
+            Config::default()
+        }
+    };
     println!("Configuration Loaded: {:?}", config);
     let source = prompt_path("Enter a valid source path: ", true);
     let destination = prompt_path("Enter a valid destination path: ", true);
