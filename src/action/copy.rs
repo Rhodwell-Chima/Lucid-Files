@@ -43,3 +43,17 @@ impl<'a> FileAction for CopyActionRef<'a> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn copy_ref_test_normal() {
+        let copy_struct = CopyActionRef {
+            source: Path::new(""),
+            destination: Path::new(""),
+        };
+
+        assert!(copy_struct.execute().is_err())
+    }
+}
