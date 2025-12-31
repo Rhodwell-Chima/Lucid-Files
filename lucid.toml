@@ -35,15 +35,14 @@ max = 8274
 # ===========================
 
 [filters]
-extensions = [".jpg", ".png", ".gif"]
-names = [
-    { Contains = "backup" },
-    { StartsWith = "report" },
-    { EndsWith = "hello" },
-    { Equal = "README.md" },
-]
-sizes = { min = 1024, max = 4096000 }
-# dates = { from = "2023-01-01T00:00:00Z", to = "2023-12-31T23:59:59Z" }
+And = { items = [
+    { Sizes = { min = 0, max = 10024 } },
+    { Extensions = { allowed = ["txt", "mp3"] } },
+    { Or = { items = [
+        { Names = { pattern = { Contains = "e" } } },
+        { Not = { item = { Extensions = { allowed = ["tmp", "bak"] } } } }
+    ] } }
+] }
 
 
 
