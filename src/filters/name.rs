@@ -1,4 +1,5 @@
 use crate::filters::{FileFilter, FilterError};
+use log::{debug, info, warn};
 use serde::Deserialize;
 use std::ffi::OsStr;
 use std::path::Path;
@@ -26,16 +27,52 @@ impl NameFilter {
 
 impl FileFilter for NameFilter {
     fn matches(&self, path: &Path) -> Result<bool, FilterError> {
-        let name = path
-            .file_name()
-            .and_then(OsStr::to_str)
-            .ok_or_else(|| FilterError::Other("Unable to Get File name.".to_string()));
+        debug!("Evaluating NameFilter for path: {}", path.display());
 
-        Ok(match &self.allowed_pattern {
-            NameMatch::Contains(pattern) => name?.contains(pattern),
-            NameMatch::StartsWith(pattern) => name?.starts_with(pattern),
-            NameMatch::EndsWith(pattern) => name?.ends_with(pattern),
-            NameMatch::Equal(pattern) => name?.eq(pattern),
-        })
+        let name_str = match path.file_name().and_then(OsStr::to_str) {
+            Some(n) => n,
+            None => {
+                warn!("Unable to extract file name from path: {}", path.display());
+                return Err(FilterError::Other("Unable to Get File name.".to_string()));
+            }
+        };
+
+        let result = match &self.allowed_pattern {
+            NameMatch::Contains(pattern) => {
+                let matched = name_str.contains(pattern);
+                debug!(
+                    "NameMatch::Contains: name=`{}`, pattern=`{}`, matched={}",
+                    name_str, pattern, matched
+                );
+                matched
+            }
+            NameMatch::StartsWith(pattern) => {
+                let matched = name_str.starts_with(pattern);
+                debug!(
+                    "NameMatch::StartsWith: name=`{}`, pattern=`{}`, matched={}",
+                    name_str, pattern, matched
+                );
+                matched
+            }
+            NameMatch::EndsWith(pattern) => {
+                let matched = name_str.ends_with(pattern);
+                debug!(
+                    "NameMatch::EndsWith: name=`{}`, pattern=`{}`, matched={}",
+                    name_str, pattern, matched
+                );
+                matched
+            }
+            NameMatch::Equal(pattern) => {
+                let matched = name_str == pattern;
+                debug!(
+                    "NameMatch::Equal: name=`{}`, pattern=`{}`, matched={}",
+                    name_str, pattern, matched
+                );
+                matched
+            }
+        };
+
+        info!("NameFilter result for `{}` -> {}", name_str, result);
+        Ok(result)
     }
 }
