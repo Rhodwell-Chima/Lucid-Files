@@ -1,10 +1,10 @@
 use Lucid_Files::action::{CopyActionRef, DeleteActionRef, FileAction, MoveActionRef};
 use Lucid_Files::config::config::{ActionType, Config};
-use Lucid_Files::config::load_config_from_path;
-use Lucid_Files::filters::FileFilter;
+use Lucid_Files::config::{Filter, load_config_from_path};
 use Lucid_Files::filters::extension::ExtensionFilter;
 use Lucid_Files::filters::filter_chain::{AndMultiFilter, OrMultiFilter};
 use Lucid_Files::filters::size::SizeFilter;
+use Lucid_Files::filters::{FileFilter, NameFilter, NotGateFilter};
 use Lucid_Files::scanner::RecursiveScanner;
 use Lucid_Files::scanner::Scanner;
 use log::{error, info};
@@ -35,8 +35,13 @@ fn main() {
     println!("2. Size Filter (0 - 1024 bytes)");
     println!("3. Or Multi Filter (Extension OR Size)");
     println!("4. And Multi Filter (Extension AND Size)");
-    let filter_choice = prompt_choice("Enter the number corresponding to your choice: ", 1, 4);
-    let filter: Box<dyn FileFilter> = choose_filter(filter_choice);
+    println!("5. Use configured filter from `lucid.toml`");
+    let filter_choice = prompt_choice("Enter the number corresponding to your choice: ", 1, 5);
+    let filter: Box<dyn FileFilter> = if filter_choice == 5 {
+        filter_from_config(&config.filters)
+    } else {
+        choose_filter(filter_choice)
+    };
 
     let scanner = RecursiveScanner::new(filter, 1, 20);
     let results = &scanner.scan(&source).unwrap();
@@ -193,6 +198,33 @@ fn perform_configured_action(choice: &ActionType, file: &PathBuf, destination: &
         }
         ActionType::Unknown => {
             println!("Invalid choice. No action will be performed.");
+        }
+    }
+}
+
+fn filter_from_config(cfg: &Filter) -> Box<dyn FileFilter> {
+    match cfg {
+        Filter::Extensions { allowed } => Box::new(ExtensionFilter::new(allowed.clone())),
+        Filter::Sizes { min, max } => Box::new(SizeFilter::new(*min, *max)),
+        Filter::Names { pattern } => Box::new(NameFilter::new(pattern.clone())),
+        Filter::And { items } => {
+            let v: Vec<Box<dyn FileFilter>> = items
+                .iter()
+                .map(|i: &Filter| filter_from_config(i))
+                .collect();
+            Box::new(AndMultiFilter::new(v))
+        }
+        Filter::Or { items } => {
+            let v: Vec<Box<dyn FileFilter>> = items
+                .iter()
+                .map(|i: &Filter| filter_from_config(i))
+                .collect();
+            Box::new(OrMultiFilter::new(v))
+        }
+        Filter::Not { item } => {
+            // `item` is `&Box<Filter>` here; `as_ref()` gives `&Filter`
+            let child: Box<dyn FileFilter> = filter_from_config(item.as_ref());
+            Box::new(NotGateFilter::new(child))
         }
     }
 }
