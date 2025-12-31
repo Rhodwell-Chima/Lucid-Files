@@ -1,5 +1,6 @@
 use crate::classifier::{ClassifierError, FileClassifier};
 use crate::filters::name::NameMatch;
+use log::{debug, info, warn};
 use std::ffi::OsStr;
 use std::path::Path;
 
@@ -19,10 +20,16 @@ impl NameClassifier {
 
 impl FileClassifier for NameClassifier {
     fn classify(&self, path: &Path) -> Result<Option<String>, ClassifierError> {
-        let name = path
-            .file_name()
-            .and_then(OsStr::to_str)
-            .ok_or(ClassifierError::InvalidFileName)?;
+        let name = match path.file_name().and_then(OsStr::to_str) {
+            Some(n) => {
+                debug!("Extracted filename '{}' from {}", n, path.display());
+                n
+            }
+            None => {
+                warn!("Invalid filename for path {}", path.display());
+                return Err(ClassifierError::InvalidFileName);
+            }
+        };
 
         let matched = match &self.allowed_pattern {
             NameMatch::Contains(pattern) => name.contains(pattern),
@@ -30,6 +37,16 @@ impl FileClassifier for NameClassifier {
             NameMatch::EndsWith(pattern) => name.ends_with(pattern),
             NameMatch::Equal(pattern) => name.eq(pattern),
         };
-        Ok(matched.then(|| self.category.clone()))
+
+        if matched {
+            info!("Classified {} as {}", path.display(), &self.category);
+            Ok(Some(self.category.clone()))
+        } else {
+            debug!(
+                "Filename '{}' did not match pattern for category '{}'",
+                name, &self.category
+            );
+            Ok(None)
+        }
     }
 }
