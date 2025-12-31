@@ -5,7 +5,6 @@ pub use recursive::*;
 pub use simple::*;
 
 use crate::filters::FilterError;
-use std::io::Error;
 use std::path::{Path, PathBuf};
 
 pub trait Scanner {
