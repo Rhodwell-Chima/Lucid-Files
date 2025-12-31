@@ -1,4 +1,5 @@
 use super::{FileFilter, FilterError};
+use log::{debug, info, warn};
 use std::ffi::OsStr;
 use std::path::Path;
 
@@ -20,10 +21,34 @@ impl ExtensionFilter {
 
 impl FileFilter for ExtensionFilter {
     fn matches(&self, path: &Path) -> Result<bool, FilterError> {
-        let result = path
-            .extension()
-            .and_then(OsStr::to_str)
-            .map(|extension| self.allowed.contains(&extension.to_lowercase()));
-        Ok(result.unwrap_or_else(|| false))
+        match path.extension().and_then(OsStr::to_str) {
+            Some(ext) => {
+                let ext_lower = ext.to_lowercase();
+                debug!(
+                    "Extracted extension '{}' from {}",
+                    ext_lower,
+                    path.display()
+                );
+                let matched = self.allowed.contains(&ext_lower);
+                if matched {
+                    info!(
+                        "Path {} matched allowed extension '{}'",
+                        path.display(),
+                        ext_lower
+                    );
+                } else {
+                    debug!(
+                        "Path {} extension '{}' not in allowed list",
+                        path.display(),
+                        ext_lower
+                    );
+                }
+                Ok(matched)
+            }
+            None => {
+                warn!("Missing or non-UTF8 extension for path {}", path.display());
+                Ok(false)
+            }
+        }
     }
 }
