@@ -12,6 +12,15 @@ pub mod owner;
 pub mod permissions;
 pub mod size;
 
+pub use date::*;
+pub use extension::*;
+pub use file_type::*;
+pub use filter_chain::*;
+pub use name::*;
+pub use owner::*;
+pub use permissions::*;
+pub use size::*;
+
 pub trait FileFilter {
     fn matches(&self, path: &Path) -> Result<bool, FilterError>;
 }
