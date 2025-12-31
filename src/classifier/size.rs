@@ -1,4 +1,5 @@
 use crate::classifier::{ClassifierError, FileClassifier};
+use log::{debug, info, warn};
 use std::fs::metadata;
 use std::path::Path;
 
@@ -27,17 +28,43 @@ impl SizeClassifier {
 
 impl FileClassifier for SizeClassifier {
     fn classify(&self, path: &Path) -> Result<Option<String>, ClassifierError> {
-        let metadata = metadata(&path).map_err(ClassifierError::Io)?;
-        if metadata.is_file() {
-            return Err(ClassifierError::NotAFile);
-        }
         if self.max_bytes < self.min_bytes {
+            warn!(
+                "Invalid byte range for category '{}' (min={} max={})",
+                self.category, self.min_bytes, self.max_bytes
+            );
             return Err(ClassifierError::InvalidRange(
                 self.min_bytes,
                 self.max_bytes,
             ));
         }
+
+        let metadata = metadata(path).map_err(ClassifierError::Io)?;
+        if !metadata.is_file() {
+            warn!("Path is not a file: {}", path.display());
+            return Err(ClassifierError::NotAFile);
+        }
+
         let len = metadata.len();
-        Ok((len >= self.min_bytes && len <= self.max_bytes).then(|| self.category.clone()))
+        debug!(
+            "File {} size = {} bytes (range {}..={})",
+            path.display(),
+            len,
+            self.min_bytes,
+            self.max_bytes
+        );
+
+        if (len >= self.min_bytes) && (len <= self.max_bytes) {
+            info!("Classified {} as {}", path.display(), self.category);
+            Ok(Some(self.category.clone()))
+        } else {
+            debug!(
+                "File {} did not match size range ({}..={})",
+                path.display(),
+                self.min_bytes,
+                self.max_bytes
+            );
+            Ok(None)
+        }
     }
 }
