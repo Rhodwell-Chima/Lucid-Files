@@ -6,7 +6,7 @@ use std::collections::HashMap;
 pub struct Config {
     pub general: General,
     pub categories: Categories,
-    pub filters: Filters,
+    pub filters: Filter,
     pub core: CoreTypes,
 }
 
@@ -103,19 +103,29 @@ impl SizeRange {
     }
 }
 
-#[derive(Deserialize, Debug)]
-pub struct Filters {
-    pub extensions: Vec<String>,
-    pub sizes: SizeRange,
-    pub names: Vec<NameMatch>,
+#[derive(Deserialize, Debug, Clone)]
+pub enum Filter {
+    And { items: Vec<Filter> },
+    Or { items: Vec<Filter> },
+    Not { item: Box<Filter> },
+
+    Extensions { allowed: Vec<String> },
+    Sizes { min: u64, max: u64 },
+    Names { pattern: NameMatch },
 }
 
-impl Default for Filters {
+impl Default for Filter {
     fn default() -> Self {
-        Filters {
-            extensions: vec!["txt".to_string(), "rs".to_string()],
-            sizes: SizeRange { min: 0, max: 1024 },
-            names: vec![NameMatch::Contains("log".to_string())],
+        Filter::Or {
+            items: vec![
+                Filter::Extensions {
+                    allowed: vec!["txt".to_string(), "rs".to_string()],
+                },
+                Filter::Sizes { min: 0, max: 1024 },
+                Filter::Names {
+                    pattern: NameMatch::Contains("log".to_string()),
+                },
+            ],
         }
     }
 }
