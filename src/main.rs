@@ -1,23 +1,16 @@
-use crate::action::move_file::MoveActionRef;
-use crate::action::{CopyActionRef, DeleteActionRef, FileAction};
-use crate::config::config::{ActionType, Config};
-use crate::config::load_config_from_path;
-use crate::filters::FileFilter;
-use crate::filters::extension::ExtensionFilter;
-use crate::filters::filter_chain::{AndMultiFilter, OrMultiFilter};
-use crate::filters::size::SizeFilter;
-use crate::scanner::{RecursiveScanner, Scanner};
+use Lucid_Files::action::{CopyActionRef, DeleteActionRef, FileAction, MoveActionRef};
+use Lucid_Files::config::config::{ActionType, Config};
+use Lucid_Files::config::load_config_from_path;
+use Lucid_Files::filters::FileFilter;
+use Lucid_Files::filters::extension::ExtensionFilter;
+use Lucid_Files::filters::filter_chain::{AndMultiFilter, OrMultiFilter};
+use Lucid_Files::filters::size::SizeFilter;
+use Lucid_Files::scanner::RecursiveScanner;
+use Lucid_Files::scanner::Scanner;
 use log::{error, info};
 use std::fs;
 use std::io::{Write, stdin};
 use std::path::{Path, PathBuf};
-
-mod action;
-mod classifier;
-mod config;
-mod filters;
-mod scanner;
-mod util;
 
 fn main() {
     env_logger::init();
