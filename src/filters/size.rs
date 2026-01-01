@@ -1,4 +1,5 @@
 use super::{FileFilter, FilterError};
+use log::{debug, info, warn};
 use std::fs::metadata;
 use std::path::Path;
 
@@ -10,6 +11,7 @@ pub struct SizeFilter {
 
 impl SizeFilter {
     pub fn new(min: u64, max: u64) -> Self {
+        info!("SizeFilter created with min={} max={}", min, max);
         Self {
             min_bytes: min,
             max_bytes: max,
@@ -19,7 +21,28 @@ impl SizeFilter {
 
 impl FileFilter for SizeFilter {
     fn matches(&self, path: &Path) -> Result<bool, FilterError> {
-        let len = metadata(&path).map_err(FilterError::IoError)?.len();
-        Ok(len >= self.min_bytes && len <= self.max_bytes)
+        debug!(
+            "SizeFilter: evaluating {:?} (min={}, max={})",
+            path, self.min_bytes, self.max_bytes
+        );
+
+        match metadata(path) {
+            Ok(md) => {
+                let len = md.len();
+                let matched = len >= self.min_bytes && len <= self.max_bytes;
+                info!(
+                    "SizeFilter: path={:?} len={} min={} max={} -> {}",
+                    path, len, self.min_bytes, self.max_bytes, matched
+                );
+                Ok(matched)
+            }
+            Err(e) => {
+                warn!(
+                    "SizeFilter: failed to get metadata for {:?} -> {:?}",
+                    path, e
+                );
+                Err(FilterError::IoError(e))
+            }
+        }
     }
 }
