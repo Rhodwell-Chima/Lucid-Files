@@ -36,12 +36,14 @@ max = 8274
 
 [filters]
 And = { items = [
-    { Sizes = { min = 0, max = 10024 } },
-    { Extensions = { allowed = ["txt", "mp3"] } },
-    { Or = { items = [
-        { Names = { pattern = { Contains = "e" } } },
-        { Not = { item = { Extensions = { allowed = ["tmp", "bak"] } } } }
-    ] } }
+    # { Sizes = { min = 0, max = 10024 } },
+    # { Extensions = { allowed = ["txt", "mp3"] } },
+    # { Or = { items = [
+
+    { Names = { pattern = { Contains = "e" } } },
+    { Names = { pattern = { Contains = "Wars" } } }
+    #    { Not = { item = { Extensions = { allowed = ["tmp", "bak"] } } } }
+    #] } }
 ] }
 
 
