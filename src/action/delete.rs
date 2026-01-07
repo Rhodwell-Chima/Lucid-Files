@@ -35,3 +35,57 @@ impl<'a> FileAction for DeleteActionRef<'a> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::{NamedTempFile, TempDir};
+
+    #[test]
+    fn delete_success_test() {
+        let temp_file = NamedTempFile::new().unwrap();
+        let temp_path = temp_file.path();
+        assert!(&temp_path.exists());
+
+        let delete_action = DeleteAction::new(&temp_path);
+        delete_action.execute().expect("Its suppose to never Fail.");
+
+        assert!(!&temp_path.exists())
+    }
+
+    #[test]
+    fn delete_fail_test() {
+        let temp_file = TempDir::new().unwrap();
+        let temp_path = temp_file.path();
+        assert!(&temp_path.exists());
+        assert!(&temp_path.is_dir());
+
+        let delete_action = DeleteAction::new(&temp_path).execute();
+        assert!(delete_action.is_err());
+        assert!(&temp_path.exists())
+    }
+
+    #[test]
+    fn delete_ref_success_test() {
+        let temp_file = NamedTempFile::new().unwrap();
+        let temp_path = temp_file.path();
+        assert!(&temp_path.exists());
+
+        let delete_action = DeleteActionRef::new(&temp_path);
+        delete_action.execute().expect("Its suppose to never Fail.");
+
+        assert!(!&temp_path.exists())
+    }
+
+    #[test]
+    fn delete_ref_fail_test() {
+        let temp_file = TempDir::new().unwrap();
+        let temp_path = temp_file.path();
+        assert!(&temp_path.exists());
+        assert!(&temp_path.is_dir());
+
+        let delete_action = DeleteActionRef::new(&temp_path).execute();
+        assert!(delete_action.is_err());
+        assert!(&temp_path.exists())
+    }
+}
