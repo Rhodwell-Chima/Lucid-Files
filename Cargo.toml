@@ -13,3 +13,4 @@ clap = { version = "4.5.53", features = ["derive"] }
 bitflags = "2.10.0"
 env_logger = "0.11.8"
 log = "0.4.29"
+tempfile = "3.24.0"
