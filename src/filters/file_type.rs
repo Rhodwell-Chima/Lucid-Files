@@ -1,9 +1,10 @@
 use super::{FileFilter, FilterError};
 use log::{debug, info, warn};
+use serde::Deserialize;
 use std::fs::symlink_metadata;
 use std::path::Path;
 
-#[derive(Clone)]
+#[derive(Deserialize, Debug, Clone)]
 pub enum FileKind {
     Symlink,
     Directory,
