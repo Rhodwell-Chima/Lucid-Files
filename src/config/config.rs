@@ -1,3 +1,4 @@
+use crate::filters::FileKind;
 use crate::filters::name::NameMatch;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -112,6 +113,7 @@ pub enum Filter {
     Extensions { allowed: Vec<String> },
     Sizes { min: u64, max: u64 },
     Names { pattern: NameMatch },
+    FileKind { file_kind: FileKind },
 }
 
 impl Default for Filter {
