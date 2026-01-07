@@ -6,8 +6,8 @@ use std::path::Path;
 
 pub mod config;
 use crate::filters::{
-    AndMultiFilter, ExtensionFilter, FileFilter, NameFilter, NotGateFilter, OrMultiFilter,
-    SizeFilter,
+    AndMultiFilter, ExtensionFilter, FileFilter, FileTypeFilter, NameFilter, NotGateFilter,
+    OrMultiFilter, SizeFilter,
 };
 pub use config::*;
 
@@ -50,5 +50,6 @@ pub fn filter_from_config(cfg: &Filter) -> Box<dyn FileFilter> {
             let child: Box<dyn FileFilter> = filter_from_config(item.as_ref());
             Box::new(NotGateFilter::new(child))
         }
+        Filter::FileKind { file_kind } => Box::new(FileTypeFilter::new(file_kind.clone())),
     }
 }
