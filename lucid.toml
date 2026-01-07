@@ -37,11 +37,12 @@ max = 8274
 [filters]
 And = { items = [
     # { Sizes = { min = 0, max = 10024 } },
-    # { Extensions = { allowed = ["txt", "mp3"] } },
+    { Extensions = { allowed = ["txt", "mp3"] } },
+    { FileKind = { file_kind = "Directory" } }, # Symlink, Directory, File,
     # { Or = { items = [
 
-    { Names = { pattern = { Contains = "e" } } },
-    { Names = { pattern = { Contains = "Wars" } } }
+    #{ Names = { pattern = { Contains = "e" } } },
+    #{ Names = { pattern = { Contains = "Wars" } } }
     #    { Not = { item = { Extensions = { allowed = ["tmp", "bak"] } } } }
     #] } }
 ] }
