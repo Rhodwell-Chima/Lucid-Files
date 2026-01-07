@@ -1,12 +1,14 @@
 use Lucid_Files::action::{CopyActionRef, DeleteActionRef, FileAction, MoveActionRef};
 use Lucid_Files::config::config::{ActionType, Config};
-use Lucid_Files::config::{Filter, load_config_from_path};
+use Lucid_Files::config::{filter_from_config, load_config_from_path};
+use Lucid_Files::filters::FileFilter;
 use Lucid_Files::filters::extension::ExtensionFilter;
 use Lucid_Files::filters::filter_chain::{AndMultiFilter, OrMultiFilter};
 use Lucid_Files::filters::size::SizeFilter;
-use Lucid_Files::filters::{FileFilter, NameFilter, NotGateFilter};
 use Lucid_Files::scanner::RecursiveScanner;
 use Lucid_Files::scanner::Scanner;
+use clap::ArgAction;
+use clap::Parser;
 use log::{error, info};
 use std::fs;
 use std::io::{Write, stdin};
@@ -14,7 +16,14 @@ use std::path::{Path, PathBuf};
 
 fn main() {
     env_logger::init();
-    let config_result = load_config_from_path("lucid.toml".as_ref());
+    let parser = Cli::parse();
+    let config_path = if parser.config.exists() {
+        parser.config
+    } else {
+        println!("The path you entered does not exist. Defaulting to `lucid.toml`");
+        "lucid.toml".parse().unwrap()
+    };
+    let config_result = load_config_from_path(&config_path);
     let config = match config_result {
         Ok(config) => {
             info!("Successfully loaded configuration.");
@@ -27,8 +36,26 @@ fn main() {
         }
     };
     println!("Configuration Loaded: {:?}", config);
-    let source = prompt_path("Enter a valid source path: ", true);
-    let destination = prompt_path("Enter a valid destination path: ", true);
+    let source = match &parser.source {
+        None => prompt_path("Enter a valid source path: ", true),
+        Some(value) => {
+            if value.is_dir() {
+                value.clone()
+            } else {
+                prompt_path("Enter a valid source path: ", true)
+            }
+        }
+    };
+    let destination = match &parser.destination {
+        None => prompt_path("Enter a valid destination path: ", true),
+        Some(value) => {
+            if value.is_dir() {
+                value.clone()
+            } else {
+                prompt_path("Enter a valid destination path: ", true)
+            }
+        }
+    };
 
     println!("Choose a filter to scan files:");
     println!("1. Extension Filter (txt, rs)");
@@ -43,18 +70,28 @@ fn main() {
         choose_filter(filter_choice)
     };
 
-    let scanner = RecursiveScanner::new(filter, 1, 20);
+    let scanner = RecursiveScanner::new(filter, 1, 200);
     let results = &scanner.scan(&source).unwrap();
 
     println!("Choose an action to perform on the scanned files:");
     println!("1. Copy Files");
     println!("2. Move Files");
     println!("3. Delete Files");
-    let action_choice = prompt_choice("Enter the number corresponding to your choice: ", 1, 3);
-
+    println!("4. Use configured filter from `lucid.toml`");
+    let action_choice = prompt_choice("Enter the number corresponding to your choice: ", 1, 4);
+    let action = if action_choice == 4 {
+        &config.core.action
+    } else {
+        &match action_choice {
+            1 => ActionType::Copy,
+            2 => ActionType::Move,
+            3 => ActionType::Delete,
+            _ => ActionType::Unknown,
+        }
+    };
     for i in results {
         println!("{}", &i.display());
-        perform_configured_action(&config.core.action, &i, &destination);
+        perform_configured_action(action, &i, &destination);
     }
 }
 
@@ -134,33 +171,6 @@ fn choose_filter(choice: u8) -> Box<dyn FileFilter> {
     }
 }
 
-fn choose_action(choice: u8, file: &PathBuf, destination: &Path) {
-    match choice {
-        1 => {
-            if let Err(e) =
-                CopyActionRef::new(&file, &destination.join(&file.file_name().unwrap())).execute()
-            {
-                println!("Copy failed: {}", e);
-            }
-        }
-        2 => {
-            if let Err(e) =
-                MoveActionRef::new(&file, &destination.join(&file.file_name().unwrap())).execute()
-            {
-                println!("Move failed: {}", e);
-            }
-        }
-        3 => {
-            if let Err(e) = DeleteActionRef::new(&file).execute() {
-                println!("Delete failed: {}", e);
-            }
-        }
-        _ => {
-            println!("Invalid choice. No action will be performed.");
-        }
-    }
-}
-
 fn perform_configured_action(choice: &ActionType, file: &PathBuf, destination: &Path) {
     match choice {
         ActionType::Copy => {
@@ -202,29 +212,42 @@ fn perform_configured_action(choice: &ActionType, file: &PathBuf, destination: &
     }
 }
 
-fn filter_from_config(cfg: &Filter) -> Box<dyn FileFilter> {
-    match cfg {
-        Filter::Extensions { allowed } => Box::new(ExtensionFilter::new(allowed.clone())),
-        Filter::Sizes { min, max } => Box::new(SizeFilter::new(*min, *max)),
-        Filter::Names { pattern } => Box::new(NameFilter::new(pattern.clone())),
-        Filter::And { items } => {
-            let v: Vec<Box<dyn FileFilter>> = items
-                .iter()
-                .map(|i: &Filter| filter_from_config(i))
-                .collect();
-            Box::new(AndMultiFilter::new(v))
-        }
-        Filter::Or { items } => {
-            let v: Vec<Box<dyn FileFilter>> = items
-                .iter()
-                .map(|i: &Filter| filter_from_config(i))
-                .collect();
-            Box::new(OrMultiFilter::new(v))
-        }
-        Filter::Not { item } => {
-            // `item` is `&Box<Filter>` here; `as_ref()` gives `&Filter`
-            let child: Box<dyn FileFilter> = filter_from_config(item.as_ref());
-            Box::new(NotGateFilter::new(child))
-        }
-    }
+#[derive(Parser, Debug)]
+#[command(author, version, about = "File organiser")]
+pub struct Cli {
+    /// Path to a configuration file
+    #[arg(short, long, value_name = "PATH", default_value = "lucid.toml")]
+    pub config: PathBuf,
+
+    /// Source directory (overrides interactive prompt)
+    #[arg(short, long, value_name = "PATH")]
+    pub source: Option<PathBuf>,
+
+    /// Destination directory (overrides interactive prompt)
+    #[arg(short, long, value_name = "PATH")]
+    pub destination: Option<PathBuf>,
+
+    /// Create a destination if it does not exist
+    #[arg(long, action = ArgAction::SetTrue)]
+    pub create_dest: bool,
+
+    /// Extensions for extension-based filters (e.g. --ext rs --ext txt)
+    #[arg(long = "ext", value_name = "EXTENSION")]
+    pub ext: Vec<String>,
+
+    /// Dry run: do not modify files
+    #[arg(long, action = ArgAction::SetTrue)]
+    pub dry_run: bool,
+
+    /// Max recursion depth for scanner
+    #[arg(long, value_name = "NUMBER")]
+    pub max_depth: Option<usize>,
+
+    /// Assume yes to prompts
+    #[arg(short, long, action = ArgAction::SetTrue)]
+    pub yes: bool,
+
+    /// Verbosity (-v, -vv, -vvv)
+    #[arg(short, action = ArgAction::Count)]
+    pub verbose: u8,
 }
