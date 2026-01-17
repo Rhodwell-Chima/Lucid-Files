@@ -7,6 +7,7 @@ use Lucid_Files::config::config::{ActionType, Config};
 use Lucid_Files::config::{filter_from_config, load_config_from_path};
 use Lucid_Files::filters::FileFilter;
 use Lucid_Files::scanner::{RecursiveScanner, Scanner};
+use Lucid_Files::util::scanner_utils::perform_scanning;
 use Lucid_Files::util::{action_utils, filter_utils};
 use clap::Parser;
 use log::{error, info};
@@ -74,8 +75,8 @@ pub fn run() {
         filter_utils::choose_filter(filter_choice)
     };
 
-    let scanner = RecursiveScanner::new(filter, 1, 200);
-    let results = &scanner.scan(&source).unwrap();
+    // let scanner = RecursiveScanner::new(filter, 1, 200);
+    let results = perform_scanning(&config.core.scanner, &source, filter).unwrap();
 
     println!("Choose an action to perform on the scanned files:");
     println!("1. Copy Files");
