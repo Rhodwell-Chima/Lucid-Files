@@ -150,8 +150,8 @@ pub enum ActionType {
 pub enum ScannerType {
     Simple,
     Recursive {
-        min_depth: u16,
-        max_depth: u16,
+        min_depth: usize,
+        max_depth: usize,
     },
     #[serde(other)]
     Unknown,
