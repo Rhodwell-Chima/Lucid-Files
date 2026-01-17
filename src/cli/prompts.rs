@@ -1,5 +1,5 @@
 use std::fs;
-use std::io::{stdin, stdout, Write};
+use std::io::{Write, stdin, stdout};
 use std::path::{Path, PathBuf};
 
 pub fn prompt_line(prompt: &str) -> String {
@@ -53,7 +53,10 @@ pub fn prompt_choice(prompt: &str, min: u8, max: u8) -> u8 {
         match s.parse::<u8>() {
             Ok(n) if n >= min && n <= max => return n,
             _ => {
-                println!("Invalid choice. Enter a number between {} and {}.", min, max);
+                println!(
+                    "Invalid choice. Enter a number between {} and {}.",
+                    min, max
+                );
             }
         }
     }
