@@ -95,9 +95,9 @@ pub fn run() {
             _ => ActionType::Unknown,
         }
     };
-
+    let dry_run: &bool = &config.general.dry_run;
     for i in results {
-        println!("{}", &i.display());
-        action_utils::perform_configured_action(action, &i, &destination);
+        // println!("{}", &i.display());
+        action_utils::perform_action(action, &i, &destination, dry_run.clone());
     }
 }
