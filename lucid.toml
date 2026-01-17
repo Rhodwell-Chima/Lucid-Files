@@ -54,4 +54,4 @@ And = { items = [
 # ===========================
 [core]
 action = "Move"  # Options: Move, Copy, Delete
-scanner = "Recusive"  # Options: Recursive, Simple
+scanner = { Recursive = { min_depth = 1, max_depth = 10 } }  # Options: Recursive, Simple
