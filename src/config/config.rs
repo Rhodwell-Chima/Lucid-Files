@@ -149,7 +149,10 @@ pub enum ActionType {
 #[derive(Deserialize, Debug)]
 pub enum ScannerType {
     Simple,
-    Recursive,
+    Recursive {
+        min_depth: u16,
+        max_depth: u16,
+    },
     #[serde(other)]
     Unknown,
 }
