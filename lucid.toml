@@ -3,7 +3,7 @@
 # ===========================
 
 [general]
-dry_run = false                 # true / false
+dry_run = true                 # true / false
 confirm_before_action = true    # true / false
 overwrite_existing = false      # true / false
 remove_empty_dirs = true        # true / false
@@ -38,7 +38,7 @@ max = 8274
 And = { items = [
     # { Sizes = { min = 0, max = 10024 } },
     { Extensions = { allowed = ["txt", "mp3"] } },
-    { FileKind = { file_kind = "Directory" } }, # Symlink, Directory, File,
+    { FileKind = { file_kind = "File" } }, # Symlink, Directory, File,
     # { Or = { items = [
 
     #{ Names = { pattern = { Contains = "e" } } },
