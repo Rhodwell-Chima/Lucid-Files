@@ -1,5 +1,5 @@
 use crate::classifier::{ClassifierError, FileClassifier};
-use log::{debug, error, info, warn};
+use log::{debug, info, warn};
 use std::collections::HashMap;
 use std::path::Path;
 
