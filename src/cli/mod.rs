@@ -4,15 +4,20 @@ mod prompts;
 pub use args::Cli;
 use std::path::PathBuf;
 
+use Lucid_Files::classifier::ExtensionClassifier;
 use Lucid_Files::config::config::{ActionType, Config};
 use Lucid_Files::config::{filter_from_config, load_config_from_path};
 use Lucid_Files::filters::FileFilter;
+use Lucid_Files::util::classifier_utils::{
+    classified_destination_path, create_directory_with_validation,
+};
 use Lucid_Files::util::scanner_utils::perform_scanning;
 use Lucid_Files::util::{action_utils, filter_utils};
 use clap::Parser;
 use log::{error, info};
+use std::error::Error;
 
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+pub fn run() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let parser = Cli::parse();
 
@@ -76,9 +81,12 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         None => &config.general.dry_run,
         Some(value) => value,
     };
+    let classifier = ExtensionClassifier::new(config.categories.by_extension.clone());
 
     for i in results {
-        action_utils::perform_action(action, &i, &destination, *dry_run);
+        let joined = classified_destination_path(&destination, &classifier, &i);
+        create_directory_with_validation(&joined)?;
+        action_utils::perform_action(action, &i, joined.as_path(), *dry_run);
     }
 
     Ok(())
