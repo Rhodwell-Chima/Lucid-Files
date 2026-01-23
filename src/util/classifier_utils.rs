@@ -1,6 +1,7 @@
+use crate::classifier::FileClassifier;
 use std::fs;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub fn create_directory_with_validation<P: AsRef<Path>>(path: P) -> io::Result<()> {
     let path = path.as_ref();
@@ -43,4 +44,16 @@ pub fn create_directory_with_validation<P: AsRef<Path>>(path: P) -> io::Result<(
             "Directory creation succeeded but verification failed",
         ))
     }
+}
+
+pub fn classified_destination_path(
+    destination: &PathBuf,
+    classifier: &dyn FileClassifier,
+    file_path: &PathBuf,
+) -> PathBuf {
+    let class_value = match classifier.classify(file_path) {
+        Ok(opt) => opt.unwrap_or_default(),
+        Err(_) => String::new(),
+    };
+    destination.join(class_value)
 }
